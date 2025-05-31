@@ -7,25 +7,33 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    proposal: {
+    coverLetter: {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    expectedDeliveryDate: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.ENUM('pending', 'hired', 'rejected'),
-      defaultValue: 'pending'
-    },
-    bidAmount: {
+    proposedRate: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
-    attachments: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      defaultValue: []
+    status: {
+      type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
+      defaultValue: 'pending'
+    },
+    freelancerId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+    jobId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Jobs',
+        key: 'id'
+      }
     }
   });
 

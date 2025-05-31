@@ -24,6 +24,10 @@ const sequelize = new Sequelize(
 const User = require('./user.model')(sequelize);
 const Job = require('./job.model')(sequelize);
 const Application = require('./application.model')(sequelize);
+const Portfolio = require('./portfolio.model')(sequelize);
+const Contract = require('./contract.model')(sequelize);
+const Meeting = require('./meeting.model')(sequelize);
+const WorkProgress = require('./workProgress.model')(sequelize);
 
 // User-Job associations
 User.hasMany(Job, { as: 'postedJobs', foreignKey: 'clientId' });
@@ -37,12 +41,35 @@ Application.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
 Job.hasMany(Application, { as: 'applications', foreignKey: 'jobId' });
 Application.belongsTo(Job, { as: 'job', foreignKey: 'jobId' });
 
+// User-Portfolio associations
+User.hasMany(Portfolio, { as: 'portfolio', foreignKey: 'freelancerId' });
+Portfolio.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
+
+// Contract associations
+Contract.belongsTo(User, { as: 'client', foreignKey: 'clientId' });
+Contract.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
+Contract.belongsTo(Job, { as: 'job', foreignKey: 'jobId' });
+
+// Meeting associations
+Meeting.belongsTo(User, { as: 'organizer', foreignKey: 'organizerId' });
+Meeting.belongsTo(User, { as: 'participant', foreignKey: 'participantId' });
+Meeting.belongsTo(Contract, { as: 'contract', foreignKey: 'contractId' });
+
+// WorkProgress associations
+WorkProgress.belongsTo(Contract, { as: 'contract', foreignKey: 'contractId' });
+WorkProgress.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
+Contract.hasMany(WorkProgress, { as: 'workProgress', foreignKey: 'contractId' });
+
 const db = {
   sequelize,
   Sequelize,
   User,
   Job,
-  Application
+  Application,
+  Portfolio,
+  Contract,
+  Meeting,
+  WorkProgress
 };
 
 module.exports = db; 

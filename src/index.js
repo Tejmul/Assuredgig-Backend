@@ -8,13 +8,17 @@ const authRoutes = require('./routes/auth.routes');
 const jobRoutes = require('./routes/job.routes');
 const applicationRoutes = require('./routes/application.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const portfolioRoutes = require('./routes/portfolio.routes');
+const contractRoutes = require('./routes/contract.routes');
+const meetingRoutes = require('./routes/meeting.routes');
+const workProgressRoutes = require('./routes/workProgress.routes');
 
 const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3001', 'http://localhost:3000', process.env.CORS_ORIGIN].filter(Boolean),
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: ['http://localhost:3001', 'http://localhost:3002', process.env.CORS_ORIGIN].filter(Boolean),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };
@@ -29,6 +33,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/contracts', contractRoutes);
+app.use('/api/meetings', meetingRoutes);
+app.use('/api/work-progress', workProgressRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -38,7 +46,7 @@ app.get('/health', (req, res) => {
 // Error handling
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Database connection and server start
 async function startServer() {

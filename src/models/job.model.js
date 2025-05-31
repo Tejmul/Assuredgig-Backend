@@ -24,16 +24,28 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('open', 'hired', 'in_progress', 'completed', 'done'),
+      type: DataTypes.ENUM('open', 'in_progress', 'completed', 'cancelled'),
       defaultValue: 'open'
     },
-    skills: {
+    requiredSkills: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: []
     },
-    attachments: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      defaultValue: []
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    experienceLevel: {
+      type: DataTypes.ENUM('entry', 'intermediate', 'expert'),
+      allowNull: false
+    },
+    clientId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
     }
   });
 

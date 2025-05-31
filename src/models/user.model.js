@@ -35,6 +35,18 @@ module.exports = (sequelize) => {
     bio: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    skills: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      defaultValue: []
+    },
+    hourlyRate: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     hooks: {
