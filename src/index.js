@@ -11,8 +11,16 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: ['http://localhost:3001', 'http://localhost:3000', process.env.CORS_ORIGIN].filter(Boolean),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(requestLogger);
 
@@ -48,7 +56,12 @@ async function startServer() {
       logger.info(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Unable to start server:', error);
+    logger.error('Unable to start server:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      errno: error.errno
+    });
     process.exit(1);
   }
 }

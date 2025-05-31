@@ -1,4 +1,26 @@
-const sequelize = require('../config/database');
+const { Sequelize } = require('sequelize');
+const config = require('../config/config');
+
+// Initialize Sequelize instance first
+const sequelize = new Sequelize(
+  config.database.name,
+  config.database.user,
+  config.database.password,
+  {
+    host: config.database.host,
+    port: config.database.port,
+    dialect: 'postgres',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  }
+);
+
+// Then initialize models
 const User = require('./user.model')(sequelize);
 const Job = require('./job.model')(sequelize);
 const Application = require('./application.model')(sequelize);
@@ -15,9 +37,12 @@ Application.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
 Job.hasMany(Application, { as: 'applications', foreignKey: 'jobId' });
 Application.belongsTo(Job, { as: 'job', foreignKey: 'jobId' });
 
-module.exports = {
+const db = {
   sequelize,
+  Sequelize,
   User,
   Job,
   Application
-}; 
+};
+
+module.exports = db; 
