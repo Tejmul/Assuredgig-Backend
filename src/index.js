@@ -12,6 +12,9 @@ const portfolioRoutes = require('./routes/portfolio.routes');
 const contractRoutes = require('./routes/contract.routes');
 const meetingRoutes = require('./routes/meeting.routes');
 const workProgressRoutes = require('./routes/workProgress.routes');
+const chatRoutes = require('./routes/chat.routes');
+const notificationRoutes = require('./routes/notification.routes');
+const { initializeSocket } = require('./config/socket');
 
 const app = express();
 
@@ -37,6 +40,8 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/contracts', contractRoutes);
 app.use('/api/meetings', meetingRoutes);
 app.use('/api/work-progress', workProgressRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -60,9 +65,13 @@ async function startServer() {
       logger.info('Database synced');
     }
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
     });
+
+    // Initialize Socket.IO
+    initializeSocket(server);
+    logger.info('Socket.IO initialized');
   } catch (error) {
     logger.error('Unable to start server:', {
       message: error.message,

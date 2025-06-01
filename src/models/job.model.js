@@ -23,11 +23,7 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       allowNull: false
     },
-    status: {
-      type: DataTypes.ENUM('open', 'in_progress', 'completed', 'cancelled'),
-      defaultValue: 'open'
-    },
-    requiredSkills: {
+    skills: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: []
     },
@@ -35,8 +31,16 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    status: {
+      type: DataTypes.ENUM('open', 'in-progress', 'completed', 'cancelled'),
+      defaultValue: 'open'
+    },
     experienceLevel: {
       type: DataTypes.ENUM('entry', 'intermediate', 'expert'),
+      allowNull: false
+    },
+    estimatedHours: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     clientId: {
@@ -46,8 +50,33 @@ module.exports = (sequelize) => {
         model: 'Users',
         key: 'id'
       }
+    },
+    selectedFreelancerId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
+    contractId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'Contracts',
+        key: 'id'
+      }
     }
+  }, {
+    timestamps: true
   });
+
+  Job.associate = (models) => {
+    Job.belongsTo(models.User, { as: 'client', foreignKey: 'clientId' });
+    Job.belongsTo(models.User, { as: 'selectedFreelancer', foreignKey: 'selectedFreelancerId' });
+    Job.belongsTo(models.Contract, { foreignKey: 'contractId' });
+    Job.hasMany(models.Application, { foreignKey: 'jobId' });
+  };
 
   return Job;
 }; 

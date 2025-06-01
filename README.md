@@ -1,41 +1,76 @@
 # AssuredGig Backend
 
-A robust backend API for the AssuredGig freelancing platform, built with Node.js, Express, and Sequelize.
-
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Database Setup](#database-setup)
-- [API Documentation](#api-documentation)
-- [Development](#development)
-- [Testing](#testing)
-- [Deployment](#deployment)
+A robust backend system for a freelancing platform that connects clients with skilled freelancers. This platform facilitates job posting, application management, contract creation, and real-time communication between clients and freelancers.
 
 ## Features
-- 🔐 Authentication & Authorization
-- 👥 User Management
-- 💼 Job Posting & Management
-- 📝 Application Processing
-- 📄 Contract Management
-- 📅 Meeting Scheduling
-- 📊 Work Progress Tracking
-- 🎯 Portfolio Management
-- 📈 Dashboard Analytics
+
+### 1. User Management
+- User registration and authentication
+- Role-based access control (Client/Freelancer)
+- Profile management
+- Portfolio creation and management
+
+### 2. Job Management
+- Job posting by clients
+- Job search and filtering
+- Job matching based on freelancer skills
+- Job application system
+
+### 3. Application System
+- Freelancers can apply to jobs
+- Clients can review applications
+- Application status tracking
+- Portfolio review during application
+
+### 4. Contract Management
+- Contract creation after application acceptance
+- Contract terms and conditions
+- Contract status tracking
+- Work progress tracking
+
+### 5. Meeting System
+- Schedule meetings between clients and freelancers
+- Meeting reminders
+- Meeting history
+- Video conferencing integration
+
+### 6. Work Progress Tracking
+- Freelancers can update work progress
+- Time tracking
+- Progress reports
+- Client approval system
+
+### 7. Real-time Communication
+- One-on-one chat between clients and freelancers
+- Real-time notifications
+- Message history
+- File sharing
+
+### 8. Notification System
+- Real-time notifications using Socket.IO
+- Email notifications
+- In-app notifications
+- Customizable notification preferences
+- Multiple notification types:
+  - Job matches
+  - Application updates
+  - Contract updates
+  - Meeting reminders
+  - Work progress updates
+  - Messages
 
 ## Tech Stack
+
 - Node.js
 - Express.js
-- Sequelize ORM
 - PostgreSQL
+- Sequelize ORM
+- Socket.IO
 - JWT Authentication
-- Bcrypt for Password Hashing
-- Multer for File Uploads
-- Nodemailer for Email Notifications
+- Nodemailer
 
 ## Prerequisites
+
 - Node.js (v14 or higher)
 - PostgreSQL
 - npm or yarn
@@ -53,17 +88,7 @@ cd assuredgig-backend
 npm install
 ```
 
-3. Create a `.env` file in the root directory (see Environment Variables section)
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-## Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
+3. Create a `.env` file in the root directory with the following variables:
 ```env
 # Server Configuration
 PORT=3002
@@ -81,35 +106,88 @@ JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=24h
 
 # Email Configuration
-SMTP_HOST=smtp.gmail.com
+SMTP_HOST=your_smtp_host
 SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_email_password
+SMTP_SECURE=false
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SMTP_FROM=noreply@yourdomain.com
+
+# Frontend URL
+FRONTEND_URL=http://localhost:3001
 
 # CORS Configuration
 CORS_ORIGIN=http://localhost:3001
 ```
 
-## Database Setup
-
-1. Create a PostgreSQL database:
-```sql
-CREATE DATABASE assuredgig;
-```
-
-2. Run migrations:
+4. Initialize the database:
 ```bash
-npm run migrate
+npm run db:init
 ```
 
-3. Seed the database (optional):
+5. Start the development server:
 ```bash
-npm run seed
+npm run dev
 ```
+
+## Project Structure
+
+```
+src/
+├── config/             # Configuration files
+├── middleware/         # Custom middleware
+├── models/            # Database models
+├── routes/            # API routes
+├── services/          # Business logic
+├── utils/             # Utility functions
+└── index.js           # Application entry point
+```
+
+## API Endpoints
+
+### Authentication
+- POST `/api/auth/register` - Register a new user
+- POST `/api/auth/login` - User login
+- GET `/api/auth/me` - Get current user profile
+
+### Jobs
+- GET `/api/jobs` - Get all jobs
+- POST `/api/jobs` - Create a new job
+- GET `/api/jobs/:id` - Get job details
+- PUT `/api/jobs/:id` - Update a job
+- DELETE `/api/jobs/:id` - Delete a job
+
+### Applications
+- POST `/api/applications` - Submit an application
+- GET `/api/applications` - Get user's applications
+- PUT `/api/applications/:id` - Update application status
+
+### Contracts
+- POST `/api/contracts` - Create a contract
+- GET `/api/contracts` - Get user's contracts
+- PUT `/api/contracts/:id` - Update contract status
+
+### Meetings
+- POST `/api/meetings` - Schedule a meeting
+- GET `/api/meetings` - Get user's meetings
+- PUT `/api/meetings/:id` - Update meeting details
+
+### Work Progress
+- POST `/api/work-progress` - Update work progress
+- GET `/api/work-progress` - Get work progress history
+
+### Notifications
+- GET `/api/notifications` - Get user's notifications
+- PATCH `/api/notifications/read` - Mark notifications as read
+- PATCH `/api/notifications/preferences` - Update notification preferences
+
+### Chat
+- GET `/api/chat` - Get chat history
+- POST `/api/chat` - Send a message
 
 ## API Documentation
 
-### Authentication APIs
+### Authentication
 
 #### Register User
 ```http
@@ -117,10 +195,21 @@ POST /api/auth/register
 Content-Type: application/json
 
 {
-  "email": "string",
-  "password": "string",
-  "fullName": "string",
-  "role": "client" | "freelancer"
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "fullName": "John Doe",
+  "role": "freelancer"
+}
+```
+
+Response:
+```json
+{
+  "id": "uuid",
+  "email": "user@example.com",
+  "fullName": "John Doe",
+  "role": "freelancer",
+  "token": "jwt_token"
 }
 ```
 
@@ -130,18 +219,23 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "string",
-  "password": "string"
+  "email": "user@example.com",
+  "password": "securePassword123"
 }
 ```
 
-#### Get Current User
-```http
-GET /api/auth/me
-Authorization: Bearer <token>
+Response:
+```json
+{
+  "id": "uuid",
+  "email": "user@example.com",
+  "fullName": "John Doe",
+  "role": "freelancer",
+  "token": "jwt_token"
+}
 ```
 
-### Job APIs
+### Jobs
 
 #### Create Job
 ```http
@@ -150,48 +244,32 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "title": "string",
-  "description": "string",
-  "budget": number,
-  "deadline": "date",
-  "skills": ["string"],
-  "category": "string"
+  "title": "Frontend Developer Needed",
+  "description": "Looking for an experienced frontend developer...",
+  "budget": 5000,
+  "deadline": "2024-12-31",
+  "skills": ["React", "TypeScript", "TailwindCSS"],
+  "category": "Web Development"
 }
 ```
 
-#### Get All Jobs
-```http
-GET /api/jobs?page=1&limit=10&category=string&search=string
-```
-
-#### Get Job Details
-```http
-GET /api/jobs/:id
-```
-
-#### Update Job
-```http
-PUT /api/jobs/:id
-Authorization: Bearer <token>
-Content-Type: application/json
-
+Response:
+```json
 {
-  "title": "string",
-  "description": "string",
-  "budget": number,
-  "deadline": "date",
-  "skills": ["string"],
-  "category": "string"
+  "id": "uuid",
+  "title": "Frontend Developer Needed",
+  "description": "Looking for an experienced frontend developer...",
+  "budget": 5000,
+  "deadline": "2024-12-31",
+  "skills": ["React", "TypeScript", "TailwindCSS"],
+  "category": "Web Development",
+  "status": "open",
+  "clientId": "uuid",
+  "createdAt": "2024-03-20T10:00:00Z"
 }
 ```
 
-#### Delete Job
-```http
-DELETE /api/jobs/:id
-Authorization: Bearer <token>
-```
-
-### Application APIs
+### Applications
 
 #### Submit Application
 ```http
@@ -200,228 +278,195 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "jobId": "string",
-  "proposal": "string",
-  "bidAmount": number
+  "jobId": "uuid",
+  "proposal": "I am interested in this project...",
+  "bidAmount": 4500,
+  "estimatedDuration": "2 months"
 }
 ```
 
-#### Get Applications
-```http
-GET /api/applications?status=pending&page=1&limit=10
-Authorization: Bearer <token>
-```
-
-#### Update Application Status
-```http
-PATCH /api/applications/:id/status
-Authorization: Bearer <token>
-Content-Type: application/json
-
+Response:
+```json
 {
-  "status": "accepted" | "rejected"
+  "id": "uuid",
+  "jobId": "uuid",
+  "freelancerId": "uuid",
+  "proposal": "I am interested in this project...",
+  "bidAmount": 4500,
+  "estimatedDuration": "2 months",
+  "status": "pending",
+  "createdAt": "2024-03-20T10:00:00Z"
 }
 ```
 
-### Contract APIs
+### Real-time Communication
 
-#### Create Contract
-```http
-POST /api/contracts
-Authorization: Bearer <token>
-Content-Type: application/json
+#### Socket.IO Connection
+```javascript
+// Frontend example
+const socket = io('http://localhost:3002', {
+  auth: {
+    token: 'jwt_token'
+  }
+});
 
-{
-  "applicationId": "string",
-  "terms": "string",
-  "startDate": "date",
-  "endDate": "date",
-  "paymentSchedule": "string"
-}
+// Listen for notifications
+socket.on('notification', (notification) => {
+  console.log('New notification:', notification);
+});
+
+// Send a message
+socket.emit('message', {
+  recipientId: 'uuid',
+  content: 'Hello!',
+  type: 'text'
+});
 ```
 
-#### Get Contracts
-```http
-GET /api/contracts?status=active&page=1&limit=10
-Authorization: Bearer <token>
-```
+## Notification System
 
-#### Update Contract Status
-```http
-PATCH /api/contracts/:id/status
-Authorization: Bearer <token>
-Content-Type: application/json
+The notification system supports multiple channels:
 
-{
-  "status": "active" | "completed" | "terminated"
-}
-```
+1. **In-app Notifications**
+   - Stored in database
+   - Real-time delivery
+   - Mark as read functionality
+   - Notification history
 
-### Meeting APIs
+2. **Email Notifications**
+   - HTML email templates
+   - Customizable content
+   - Action links
+   - Responsive design
 
-#### Schedule Meeting
-```http
-POST /api/meetings
-Authorization: Bearer <token>
-Content-Type: application/json
+3. **Push Notifications**
+   - Real-time delivery
+   - Customizable preferences
+   - Multiple notification types
 
-{
-  "contractId": "string",
-  "title": "string",
-  "description": "string",
-  "startTime": "datetime",
-  "endTime": "datetime",
-  "participantId": "string"
-}
-```
+## Troubleshooting Guide
 
-#### Get Meetings
-```http
-GET /api/meetings
-Authorization: Bearer <token>
-```
+### Common Issues and Solutions
 
-#### Update Meeting Status
-```http
-PATCH /api/meetings/:id/status
-Authorization: Bearer <token>
-Content-Type: application/json
+1. **Database Connection Issues**
+   ```bash
+   Error: connect ECONNREFUSED 127.0.0.1:5432
+   ```
+   Solution:
+   - Check if PostgreSQL is running
+   - Verify database credentials in .env
+   - Ensure database exists
 
-{
-  "status": "scheduled" | "completed" | "cancelled"
-}
-```
+2. **Authentication Errors**
+   ```bash
+   Error: Invalid token
+   ```
+   Solution:
+   - Check JWT_SECRET in .env
+   - Ensure token is being sent in Authorization header
+   - Verify token hasn't expired
 
-### Work Progress APIs
+3. **Socket.IO Connection Issues**
+   ```bash
+   Error: Authentication error
+   ```
+   Solution:
+   - Verify token is being sent in socket connection
+   - Check CORS settings
+   - Ensure Socket.IO server is running
 
-#### Submit Progress
-```http
-POST /api/work-progress
-Authorization: Bearer <token>
-Content-Type: application/json
+4. **Email Sending Issues**
+   ```bash
+   Error: Invalid login
+   ```
+   Solution:
+   - Verify SMTP credentials
+   - Check if SMTP server allows less secure apps
+   - Ensure correct SMTP port
 
-{
-  "contractId": "string",
-  "description": "string",
-  "percentage": number,
-  "attachments": ["string"]
-}
-```
+### Development Tips
 
-#### Get Progress
-```http
-GET /api/work-progress?contractId=string&page=1&limit=10
-Authorization: Bearer <token>
-```
+1. **Debugging**
+   ```bash
+   # Enable debug logs
+   DEBUG=* npm run dev
+   
+   # Check database queries
+   DEBUG=sequelize npm run dev
+   ```
 
-### Portfolio APIs
+2. **Database Management**
+   ```bash
+   # Reset database
+   npm run db:reset
+   
+   # Run migrations
+   npm run db:migrate
+   
+   # Seed data
+   npm run db:seed
+   ```
 
-#### Create Portfolio
-```http
-POST /api/portfolio
-Authorization: Bearer <token>
-Content-Type: application/json
+3. **Testing**
+   ```bash
+   # Run all tests
+   npm test
+   
+   # Run specific test file
+   npm test -- tests/auth.test.js
+   ```
 
-{
-  "title": "string",
-  "description": "string",
-  "skills": ["string"],
-  "projects": [{
-    "title": "string",
-    "description": "string",
-    "url": "string",
-    "image": "string"
-  }]
-}
-```
+## Development Workflow
 
-#### Get Portfolio
-```http
-GET /api/portfolio/:userId
-```
+1. **Setting Up Development Environment**
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Set up pre-commit hooks
+   npm run setup-hooks
+   
+   # Start development server
+   npm run dev
+   ```
 
-#### Update Portfolio
-```http
-PUT /api/portfolio
-Authorization: Bearer <token>
-Content-Type: application/json
+2. **Code Style**
+   - Use ESLint for code linting
+   - Follow the project's coding standards
+   - Write meaningful commit messages
 
-{
-  "title": "string",
-  "description": "string",
-  "skills": ["string"],
-  "projects": [{
-    "title": "string",
-    "description": "string",
-    "url": "string",
-    "image": "string"
-  }]
-}
-```
+3. **Git Workflow**
+   ```bash
+   # Create feature branch
+   git checkout -b feature/new-feature
+   
+   # Make changes and commit
+   git add .
+   git commit -m "feat: add new feature"
+   
+   # Push changes
+   git push origin feature/new-feature
+   ```
 
-### Dashboard APIs
-
-#### Get Dashboard Stats
-```http
-GET /api/dashboard/stats
-Authorization: Bearer <token>
-```
-
-## Development
-
-### Project Structure
-```
-src/
-├── config/         # Configuration files
-├── controllers/    # Route controllers
-├── middleware/     # Custom middleware
-├── models/         # Database models
-├── routes/         # API routes
-├── services/       # Business logic
-├── utils/          # Utility functions
-└── index.js        # Application entry point
-```
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run start` - Start production server
-- `npm run migrate` - Run database migrations
-- `npm run seed` - Seed the database
-- `npm run test` - Run tests
-- `npm run lint` - Run linter
-
-## Testing
-
-Run the test suite:
-```bash
-npm test
-```
-
-## Deployment
-
-1. Build the application:
-```bash
-npm run build
-```
-
-2. Start the production server:
-```bash
-npm start
-```
+4. **Pull Request Process**
+   - Create PR from feature branch to main
+   - Ensure all tests pass
+   - Get code review
+   - Address review comments
+   - Merge after approval
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Support
 
-For support, email support@assuredgig.com or join our Slack channel. 
+For support, email support@assuredgig.com or create an issue in the repository. 

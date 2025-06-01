@@ -28,6 +28,8 @@ const Portfolio = require('./portfolio.model')(sequelize);
 const Contract = require('./contract.model')(sequelize);
 const Meeting = require('./meeting.model')(sequelize);
 const WorkProgress = require('./workProgress.model')(sequelize);
+const Notification = require('./notification.model')(sequelize);
+const NotificationPreference = require('./notificationPreference.model')(sequelize);
 
 // User-Job associations
 User.hasMany(Job, { as: 'postedJobs', foreignKey: 'clientId' });
@@ -48,7 +50,15 @@ Portfolio.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
 // Contract associations
 Contract.belongsTo(User, { as: 'client', foreignKey: 'clientId' });
 Contract.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
-Contract.belongsTo(Job, { as: 'job', foreignKey: 'jobId' });
+Contract.belongsTo(Job, { foreignKey: 'jobId' });
+Contract.hasMany(WorkProgress, { 
+  foreignKey: 'contractId',
+  as: 'progressUpdates'
+});
+Contract.hasMany(Meeting, { 
+  foreignKey: 'contractId',
+  as: 'meetings'
+});
 
 // Meeting associations
 Meeting.belongsTo(User, { as: 'organizer', foreignKey: 'organizerId' });
@@ -58,7 +68,14 @@ Meeting.belongsTo(Contract, { as: 'contract', foreignKey: 'contractId' });
 // WorkProgress associations
 WorkProgress.belongsTo(Contract, { as: 'contract', foreignKey: 'contractId' });
 WorkProgress.belongsTo(User, { as: 'freelancer', foreignKey: 'freelancerId' });
-Contract.hasMany(WorkProgress, { as: 'workProgress', foreignKey: 'contractId' });
+
+// Notification associations
+Notification.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(Notification, { foreignKey: 'userId' });
+
+// NotificationPreference associations
+NotificationPreference.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(NotificationPreference, { foreignKey: 'userId' });
 
 const db = {
   sequelize,
@@ -69,7 +86,9 @@ const db = {
   Portfolio,
   Contract,
   Meeting,
-  WorkProgress
+  WorkProgress,
+  Notification,
+  NotificationPreference
 };
 
 module.exports = db; 

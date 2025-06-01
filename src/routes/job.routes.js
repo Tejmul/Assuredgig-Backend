@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { Job, User, Application } = require('../models');
 const { auth, checkRole } = require('../middleware/auth.middleware');
+const NotificationService = require('../services/notification.service');
 
 const router = express.Router();
 
@@ -47,9 +48,12 @@ router.post('/', auth, checkRole(['client']), jobValidation, async (req, res) =>
       clientId: req.user.id
     });
 
+    // Notify matching freelancers
+    await NotificationService.notifyMatchingFreelancers(job);
+
     res.status(201).json(job);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating job', error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

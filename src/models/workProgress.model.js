@@ -7,15 +7,19 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true
     },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false
+    contractId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'Contracts',
+        key: 'id'
+      }
     },
     description: {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    progressPercentage: {
+    percentage: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -23,23 +27,37 @@ module.exports = (sequelize) => {
         max: 100
       }
     },
-    status: {
-      type: DataTypes.ENUM('in_progress', 'completed', 'blocked'),
-      defaultValue: 'in_progress'
+    hoursWorked: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     },
     attachments: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: []
     },
-    comments: {
-      type: DataTypes.JSONB,
-      defaultValue: []
+    status: {
+      type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+      defaultValue: 'pending'
     },
-    milestoneId: {
-      type: DataTypes.UUID,
-      allowNull: true
+    clientFeedback: {
+      type: DataTypes.TEXT
+    },
+    clientFeedbackDate: {
+      type: DataTypes.DATE
     }
+  }, {
+    timestamps: true
   });
+
+  WorkProgress.associate = (models) => {
+    WorkProgress.belongsTo(models.Contract, { foreignKey: 'contractId' });
+  };
 
   return WorkProgress;
 }; 
